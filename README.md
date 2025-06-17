@@ -1,73 +1,133 @@
-# Welcome to your Lovable project
+# Typescript Type Definitions for WebGPU
 
-## Project info
+This package defines Typescript types (`.d.ts`) for the upcoming [WebGPU standard](https://github.com/gpuweb/gpuweb/wiki/Implementation-Status).
 
-**URL**: https://lovable.dev/projects/3a2b84b2-2adc-4efb-acb4-ce5eda6b45c9
+Use this package to augment the ambient [`"dom"`](https://www.typescriptlang.org/docs/handbook/compiler-options.html#compiler-options) type definitions with the new definitions for WebGPU.
 
-## How can I edit this code?
+## API style docs
 
-There are several ways of editing your application.
+This repo also generates typedoc docs here: https://gpuweb.github.io/types
 
-**Use Lovable**
+## What are declaration files?
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/3a2b84b2-2adc-4efb-acb4-ce5eda6b45c9) and start prompting.
+See the [TypeScript handbook](http://www.typescriptlang.org/docs/handbook/declaration-files/introduction.html).
 
-Changes made via Lovable will be committed automatically to this repo.
 
-**Use your preferred IDE**
+## How can I use them?
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Install
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- npm: `npm install --save-dev @webgpu/types`
+- yarn: `yarn add --dev @webgpu/types`
+- pnpm: `pnpm add -D @webgpu/types`
 
-Follow these steps:
+If you are on TypeScript < 5.1, you will also need to install `@types/dom-webcodecs`
+as a sibling dependency. The version you need depends on the TypeScript version;
+see the [tests](tests/) for examples.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Configure
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Since this package is outside DefinitelyTyped, the dependency won't be picked up automatically.
+There are several ways to add a additional TypeScript type definition dependencies to your TypeScript project:
 
-# Step 3: Install the necessary dependencies.
-npm i
+#### TypeScript `tsc` and `tsc`-based bundlers
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+In `tsconfig.json`:
+
+```js
+{
+  // ...
+  "compilerOptions": {
+    // ...
+    "types": ["@webgpu/types"]
+  }
+}
 ```
 
-**Edit a file directly in GitHub**
+Or you can use `typeRoots`:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```js
+{
+  // ...
+  "compilerOptions": {
+    // ...
+    "typeRoots": ["./node_modules/@webgpu/types", "./node_modules/@types"]
+  }
+}
+```
 
-**Use GitHub Codespaces**
+#### Inline in TypeScript
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+This may work better if your toolchain doesn't read `tsconfig.json`.
 
-## What technologies are used for this project?
+```ts
+/// <reference types="@webgpu/types" />
+```
 
-This project is built with:
+#### Webpack
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+If you use Webpack and the options above aren't sufficient (this has not been verified),
+you may need the following in `webpack.config.js`:
 
-## How can I deploy this project?
+```js
+"types": ["@webgpu/types"]
+```
 
-Simply open [Lovable](https://lovable.dev/projects/3a2b84b2-2adc-4efb-acb4-ce5eda6b45c9) and click on Share -> Publish.
+#### Others?
 
-## Can I connect a custom domain to my Lovable project?
+Please contribute a PR to add instructions for other setups or improve existing instructions. :)
 
-Yes, you can!
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## How to update these types
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- Make sure the submodule is checked out: `git submodule update --init`
+- Pull `gpuweb` changes: `pushd gpuweb && git checkout main && git pull && popd`
+- Install dependencies: `npm ci`
+- Bug workaround: paste the `copies.bs` contents in place of its include in `index.bs` (generator doesn't support includes).
+- Generate `generated/index.d.ts`: `npm run generate`
+- Open a diff between `generated/index.d.ts` and `dist/index.d.ts`.
+    The generated file is tracked by Git so you can see what has changed.
+    Update the latter according to changes from the former.
+    Note the `generated/` and `dist/` files are not the same.
+    See below for intentional differences.
+- Format the result: `npm run format`
+
+### Intentional differences between generator output and final result
+
+Most or all of these should be fixed in the generator over time.
+
+- `any` changed to `object` for WebIDL `object`.
+
+The following differences are TODO: should be changed in the final result.
+
+- Deprecated items should be removed.
+- TODO items should be fixed (e.g. make new additions no longer optional).
+- Addition of Compatibility Mode items like `textureBindingViewDimension`.
+
+The following differences will remain.
+
+- `onuncapturederror` strongly typed.
+- `addEventListener('uncapturederror')` type support.
+- `getContext` definitions.
+- `GPUExtent3DStrict` and `GPUOrigin2DStrict`.
+
+### Publish a new npm package version
+
+(only for people who have npm publish access)
+
+* One line cmd to copy-n-paste (for ssh git user, and you'd better know what you are doing, if it failed at certain steps, you might need to clean up git tags before trying again)
+  - `git checkout main && git pull git@github.com:gpuweb/types.git main && git submodule update --init && npm version patch && git push git@github.com:gpuweb/types.git main --tags && npm publish`
+* Separate steps (better for publishing for the first time)
+  * Make sure you are in the upstream repo, not your forked one. And make sure you are synced to latest commit intended for publish
+    - `git checkout main`
+    - `git pull https://github.com/gpuweb/types.git main`
+      - (If you are using HTTPS regularly. You can use remote names like `origin`, just make sure you are referring to the right repo)
+    - `git submodule update --init`
+  * Create the version tag and commit, and push
+    - `npm version patch`
+    - `git push https://github.com/gpuweb/types.git main --tags`
+  * publish the package
+    - `npm publish --otp=<code>`
+      - Replace `<code>` with the one-time password from your authenticator, since two-factors authentication is required to publish.
+      - If you are doing for the first time, you will do `npm adduser` first and it will guide you through adding the npm account.
+

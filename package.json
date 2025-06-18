@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://asdcccct65.github.io/web-dev-midterm",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -45,7 +44,6 @@
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
     "@tanstack/react-query": "^5.56.2",
-    "@vitejs/plugin-react": "^4.5.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
@@ -89,4 +87,3 @@
     "vite": "^5.4.1"
   }
 }
-

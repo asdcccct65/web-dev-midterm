@@ -1,17 +1,18 @@
 
-import React from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Target, CheckCircle } from "lucide-react"
+import React from "react";
+import { Link } from "react-router-dom";  // <-- add this import
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Target, CheckCircle } from "lucide-react";
 
 interface Challenge {
-  id: number
-  title: string
-  completed: boolean
-  points: number
+  id: number;
+  title: string;
+  completed: boolean;
+  points: number;
 }
 
 interface ChallengeProgressProps {
-  challenges: Challenge[]
+  challenges: Challenge[];
 }
 
 export function ChallengeProgress({ challenges }: ChallengeProgressProps) {
@@ -31,12 +32,17 @@ export function ChallengeProgress({ challenges }: ChallengeProgressProps) {
             ) : (
               <div className="h-5 w-5 border-2 border-muted rounded-full" />
             )}
-            <span className={challenge.completed ? "line-through text-muted-foreground" : ""}>
+            <Link
+              to={`/missions/${challenge.id}`}  // <--- link to mission detail page
+              className={`${
+                challenge.completed ? "line-through text-muted-foreground" : ""
+              } hover:underline`}
+            >
               {challenge.title} ({challenge.points} pts)
-            </span>
+            </Link>
           </div>
         ))}
       </CardContent>
     </Card>
-  )
+  );
 }

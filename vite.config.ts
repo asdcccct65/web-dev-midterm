@@ -3,9 +3,8 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: mode === "production" ? "/web-dev-midterm/" : "/",
+  base: mode === "production" ? "./" : "/",  // <-- use relative paths for production build
   server: {
     host: "::",
     port: 8080,
@@ -20,6 +19,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    sourcemap: true, // <-- enables source maps for better debugging
+    sourcemap: true, // enables source maps for debugging
   },
 }));
